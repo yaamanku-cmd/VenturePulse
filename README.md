@@ -1,4 +1,4 @@
- # Venture Pulse AI
+# Venture Pulse AI
 
 > **Autonomous Diligence & Runway Operating System**
 > Bridging Startup Pitch Claims, Self-Reported Ledgers, and Meritocracy-Driven Venture Capital.
