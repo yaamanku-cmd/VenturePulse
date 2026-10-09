@@ -86,4 +86,4 @@ npm run dev
 # 3. Build for production
 npm run build
 ```
-The application will be live at `http://localhost:5173/`.
+The application will be live at `https://venturepulse-0bj7.onrender.com/`.
