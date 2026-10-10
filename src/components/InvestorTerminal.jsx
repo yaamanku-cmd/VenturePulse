@@ -7,7 +7,13 @@ import {
   TrendingUp, 
   Lock, 
   Compass,
-  Sparkles
+  Sparkles,
+  CheckCircle2,
+  AlertTriangle,
+  Award,
+  ShieldCheck,
+  FileSpreadsheet,
+  ArrowRight
 } from 'lucide-react';
 import { formatINR } from '../utils/formatters';
 import { MeritocracyGauge } from './MeritocracyGauge';
@@ -15,19 +21,19 @@ import { ClaimCheckSplit } from './ClaimCheckSplit';
 import { RunwayStressTester } from './RunwayStressTester';
 import { TrancheSimulation } from './TrancheSimulation';
 import { PreRevenueAdvisoryHub } from './PreRevenueAdvisoryHub';
+import { StageNavigationStepper, StageFooterNav } from './StageNavigationStepper';
 
 /**
  * InvestorTerminal Component
  * 
  * Second Door: "Investor Diligence Terminal"
  * 
- * CRITICAL PRODUCT PRINCIPLES:
- * 1. "Pedigree-Blind Toggle": Interactive toggle ("Blind Mode") masks founder names, faces,
- *    and college names (e.g., displaying "Startup #104 — Tier-3 Hub, AgriTech").
- * 2. "Meritocracy Score Dial": Circular gauge (0-100) with breakdown modal & disclaimer.
- * 3. "Claim Check": Side-by-side comparison of pitch claims vs Self-Reported Ledger.
- * 4. "Interactive What-If Sliders": Dual sliders recalculating runway in real-time.
- * 5. "Tranche Release Simulation": Stepper with milestone unlocks and "Simulation: No real money moves".
+ * FEATURE ORDER ENFORCED:
+ * 01. Executive Pulse (Score, Investment Ratios & Pedigree-Blind Screening)
+ * 02. Claim Check Matrix (Pitch Claims vs Self-Reported Ledger Audit)
+ * 03. Runway Shock Sim (18-Month What-If Cash Depletion Simulator)
+ * 04. Tranche Escrow (Milestone Capital Governance)
+ * 05. Advisory Syndicate & IC Decision (Term Sheet / Audit / Pass)
  */
 export const InvestorTerminal = ({
   startup,
@@ -36,7 +42,7 @@ export const InvestorTerminal = ({
   isSampleDataLoaded,
   onOpenTrustModal
 }) => {
-  const [activeView, setActiveView] = useState('diligence_hub'); // 'diligence_hub' | 'claim_check' | 'runway_stress' | 'tranche_escrow'
+  const [activeStage, setActiveStage] = useState('pulse'); // 'pulse' | 'claim_check' | 'runway_stress' | 'tranche_escrow' | 'advisory_action'
   const [decisionState, setDecisionState] = useState(null); // 'approved' | 'audit_requested' | 'passed'
 
   const displayName = isBlindMode 
@@ -59,7 +65,7 @@ export const InvestorTerminal = ({
                 Institutional Diligence Terminal
               </span>
               <span className="text-xs font-mono text-slate-400">
-                Round Size: {startup.askingRound} • Stage: {startup.stage}
+                Round: {startup.askingRound} • Stage: {startup.stage} • Sector: {startup.sector}
               </span>
             </div>
 
@@ -118,155 +124,89 @@ export const InvestorTerminal = ({
         </div>
       </div>
 
-      {/* Founder Team / Pedigree Card (Affected by Blind Toggle) */}
-      <div className="p-5 md:p-6 rounded-2xl bg-[#0e1524] border border-[#1f2e4a] shadow-lg">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <UserCheck className="w-4 h-4 text-indigo-400" />
-            <h3 className="text-sm font-bold text-white uppercase tracking-wider">
-              {isBlindMode ? 'Anonymized Founder Profiles (Bias-Free)' : 'Founding Team Credentials'}
-            </h3>
-          </div>
-          <span className="text-xs font-mono text-slate-400">
-            {isBlindMode ? 'Pedigree Obfuscated' : 'Verified via LinkedIn / MCA'}
-          </span>
-        </div>
+      {/* CORE 5-STAGE PIPELINE STEPPER (ENFORCING EXACT LOGICAL ORDER) */}
+      <StageNavigationStepper
+        currentStage={activeStage}
+        onSelectStage={setActiveStage}
+        startup={startup}
+        isFounderMode={false}
+      />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {founders.map((founder, idx) => (
-            <div 
-              key={idx} 
-              className={`p-4 rounded-xl border flex items-center gap-4 transition-all ${
-                isBlindMode 
-                  ? 'bg-[#111927] border-emerald-500/20 shadow-sm' 
-                  : 'bg-[#111927] border-[#1f2e4a]'
-              }`}
-            >
-              {/* Avatar: algorithmic geometric icon in blind mode, photo in normal mode */}
-              {isBlindMode ? (
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-900 to-slate-800 border border-emerald-500/30 flex items-center justify-center text-emerald-400 font-mono font-bold text-sm shadow-inner">
-                  #{idx + 1}
-                </div>
-              ) : (
-                <img 
-                  src={founder.avatar} 
-                  alt={founder.realName} 
-                  className="w-12 h-12 rounded-xl object-cover border border-[#1f2e4a]" 
-                />
-              )}
-
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
-                  <h4 className="text-sm font-bold text-white truncate">
-                    {isBlindMode ? founder.blindName : founder.realName}
-                  </h4>
-                  <span className="text-[10px] font-mono px-2 py-0.2 rounded bg-slate-800 text-slate-400">
-                    {founder.role}
-                  </span>
-                </div>
-
-                <div className="text-xs text-indigo-300 font-mono mt-0.5 truncate">
-                  {isBlindMode ? founder.blindPedigree : founder.realPedigree}
-                </div>
-
-                <div className="text-[11px] text-slate-400 mt-1">
-                  Track Record: {founder.experience}
-                </div>
+      {/* =========================================================================
+          STAGE 1: EXECUTIVE PULSE (Score, Investment Ratios & Pedigree Card)
+          ========================================================================= */}
+      {activeStage === 'pulse' && (
+        <div className="space-y-6 animate-fadeIn">
+          {/* Founder Team / Pedigree Card (Affected by Blind Toggle) */}
+          <div className="p-5 md:p-6 rounded-2xl bg-[#0e1524] border border-[#1f2e4a] shadow-lg">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <UserCheck className="w-4 h-4 text-indigo-400" />
+                <h3 className="text-sm font-bold text-white uppercase tracking-wider">
+                  {isBlindMode ? 'Anonymized Founder Profiles (Bias-Free)' : 'Founding Team Credentials'}
+                </h3>
               </div>
+              <span className="text-xs font-mono text-slate-400">
+                {isBlindMode ? 'Pedigree Obfuscated' : 'Verified via LinkedIn / MCA'}
+              </span>
             </div>
-          ))}
-        </div>
-      </div>
 
-      {/* Terminal View Switcher Sub-Tabs */}
-      <div className="flex items-center gap-2 border-b border-[#1f2e4a] pb-2 overflow-x-auto">
-        <button
-          onClick={() => setActiveView('diligence_hub')}
-          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
-            activeView === 'diligence_hub'
-              ? 'bg-indigo-600 text-white shadow-md'
-              : 'text-slate-400 hover:text-slate-200'
-          }`}
-        >
-          <Compass className="w-3.5 h-3.5" />
-          <span>Executive Diligence Hub</span>
-        </button>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {founders.map((founder, idx) => (
+                <div 
+                  key={idx} 
+                  className={`p-4 rounded-xl border flex items-center gap-4 transition-all ${
+                    isBlindMode 
+                      ? 'bg-[#111927] border-emerald-500/30 ring-1 ring-emerald-500/10' 
+                      : 'bg-[#111927] border-[#1f2e4a]'
+                  }`}
+                >
+                  <img
+                    src={founder.avatar}
+                    alt="Founder Avatar"
+                    className={`w-12 h-12 rounded-xl object-cover border border-[#1f2e4a] transition-all ${
+                      isBlindMode ? 'filter blur-md grayscale contrast-125' : ''
+                    }`}
+                  />
 
-        <button
-          onClick={() => setActiveView('claim_check')}
-          className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
-            activeView === 'claim_check'
-              ? 'bg-indigo-600 text-white shadow-md'
-              : 'text-slate-400 hover:text-slate-200'
-          }`}
-        >
-          <ArrowRightLeft className="w-3.5 h-3.5" />
-          <span>Claim Check Matrix</span>
-          <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-indigo-900/80 text-indigo-200 font-mono">
-            {startup.claims.length}
-          </span>
-        </button>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-bold text-white truncate">
+                        {founder.name}
+                      </span>
+                      <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700">
+                        {founder.role}
+                      </span>
+                    </div>
 
-        <button
-          onClick={() => setActiveView('runway_stress')}
-          className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
-            activeView === 'runway_stress'
-              ? 'bg-indigo-600 text-white shadow-md'
-              : 'text-slate-400 hover:text-slate-200'
-          }`}
-        >
-          <TrendingUp className="w-3.5 h-3.5" />
-          <span>What-If Runway Shock Test</span>
-        </button>
+                    <div className="text-xs text-indigo-300 font-mono mt-0.5">
+                      Alma Mater: {founder.college}
+                    </div>
 
-        <button
-          onClick={() => setActiveView('tranche_escrow')}
-          className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
-            activeView === 'tranche_escrow'
-              ? 'bg-indigo-600 text-white shadow-md'
-              : 'text-slate-400 hover:text-slate-200'
-          }`}
-        >
-          <Lock className="w-3.5 h-3.5" />
-          <span>Tranche Escrow Governance</span>
-        </button>
+                    <div className="text-[11px] text-slate-400 mt-1">
+                      Track Record: {founder.experience}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
 
-        {/* Advisory Syndicate & Pre-Revenue Diagnostic View */}
-        <button
-          onClick={() => setActiveView('advisory_syndicate')}
-          className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
-            activeView === 'advisory_syndicate'
-              ? 'bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white shadow-md'
-              : 'text-slate-400 hover:text-slate-200'
-          }`}
-        >
-          <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
-          <span>Advisory Syndicate & Diagnostics</span>
-          {startup?.financials?.currentMrr === 0 && (
-            <span className="text-[9px] px-1.5 py-0.2 rounded-full bg-amber-500 text-slate-950 font-bold uppercase animate-pulse">
-              Pre-Rev
-            </span>
-          )}
-        </button>
-      </div>
-
-      {/* VIEW 1: Executive Diligence Hub (Combines Dial, Key Ratios, Quick Split Preview) */}
-      {activeView === 'diligence_hub' && (
-        <div className="space-y-6">
+          {/* Main 2-Column Diligence Layout: Left = Meritocracy Dial; Right = Verified Investment Ratios */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Column 1: Meritocracy Score Dial (0-100) */}
             <div className="lg:col-span-1">
               <MeritocracyGauge startup={startup} />
             </div>
 
-            {/* Column 2 & 3: Diligence Summary Matrix & Ratios */}
+            {/* Column 2: Diligence Summary Matrix & Ratios */}
             <div className="lg:col-span-2 space-y-4">
               <div className="p-6 rounded-2xl bg-[#0e1524] border border-[#1f2e4a] shadow-lg">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-sm font-bold text-white uppercase tracking-wider">
                     Core Investment Ratios (Verified vs Deck)
                   </h3>
-                  <span className="text-xs font-mono text-emerald-400">
+                  <span className="text-xs font-mono text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/30 font-semibold">
                     Live Ledger Ground Truth
                   </span>
                 </div>
@@ -328,82 +268,156 @@ export const InvestorTerminal = ({
                   </div>
                 </div>
 
-                {/* Investment Memo Decision Simulator */}
-                <div className="mt-6 pt-5 border-t border-[#1f2e4a]">
-                  <span className="text-xs font-semibold text-slate-300 block mb-3">
-                    Investment Committee Action:
-                  </span>
-                  <div className="flex items-center gap-3 flex-wrap">
-                    <button
-                      onClick={() => setDecisionState('approved')}
-                      className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
-                        decisionState === 'approved'
-                          ? 'bg-emerald-600 text-white ring-2 ring-emerald-400'
-                          : 'bg-emerald-600/20 text-emerald-300 hover:bg-emerald-600/30 border border-emerald-500/40'
-                      }`}
-                    >
-                      Issue Milestone Term Sheet (₹1.00 Cr)
-                    </button>
-                    <button
-                      onClick={() => setDecisionState('audit_requested')}
-                      className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
-                        decisionState === 'audit_requested'
-                          ? 'bg-amber-600 text-white ring-2 ring-amber-400'
-                          : 'bg-amber-600/20 text-amber-300 hover:bg-amber-600/30 border border-amber-500/40'
-                      }`}
-                    >
-                      Request Claim Check Audit Clarification
-                    </button>
-                    <button
-                      onClick={() => setDecisionState('passed')}
-                      className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
-                        decisionState === 'passed'
-                          ? 'bg-rose-600 text-white ring-2 ring-rose-400'
-                          : 'bg-rose-600/20 text-rose-300 hover:bg-rose-600/30 border border-rose-500/40'
-                      }`}
-                    >
-                      Pass on Round
-                    </button>
+                {/* Next Stage Navigation Prompt */}
+                <div className="mt-5 p-4 rounded-xl bg-[#090f1d] border border-indigo-500/30 flex items-center justify-between">
+                  <div className="text-xs text-slate-300">
+                    <span className="font-bold text-white block">Audit Reconciliation Queue:</span>
+                    <span>{startup.claims.length} pitch deck statements extracted and cross-checked against live ledger.</span>
                   </div>
-
-                  {decisionState && (
-                    <div className="mt-3 p-3 rounded-xl bg-slate-900 border border-slate-700 text-xs font-mono text-slate-300 animate-fadeIn">
-                      {decisionState === 'approved' && '✅ Term Sheet Draft Generated with 3-Step Milestone Escrow Conditions attached.'}
-                      {decisionState === 'audit_requested' && '⚠️ Diligence RFIs dispatched to founder for amber/red ledger variances.'}
-                      {decisionState === 'passed' && '❌ Opportunity archived in Deal Flow CRM with automated meritocracy score memo.'}
-                    </div>
-                  )}
+                  <button
+                    onClick={() => setActiveStage('claim_check')}
+                    className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold transition-all shadow-md flex items-center gap-1.5 whitespace-nowrap"
+                  >
+                    <span>Proceed to Stage 02: Claim Check</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </button>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Embedded Claim Check Preview */}
-          <ClaimCheckSplit startup={startup} isFounderMode={false} />
-
-          {/* Embedded Runway Tester */}
-          <RunwayStressTester startup={startup} />
+          <StageFooterNav
+            currentStage={activeStage}
+            onSelectStage={setActiveStage}
+            nextLabel="Claim Check Matrix (Audit)"
+          />
         </div>
       )}
 
-      {/* VIEW 2: Dedicated Claim Check Matrix */}
-      {activeView === 'claim_check' && (
-        <ClaimCheckSplit startup={startup} isFounderMode={false} />
+      {/* =========================================================================
+          STAGE 2: CLAIM CHECK MATRIX (Pitch Claims vs Ledger Audit)
+          ========================================================================= */}
+      {activeStage === 'claim_check' && (
+        <div className="space-y-4 animate-fadeIn">
+          <ClaimCheckSplit startup={startup} isFounderMode={false} />
+
+          <StageFooterNav
+            currentStage={activeStage}
+            onSelectStage={setActiveStage}
+            prevLabel="Executive Pulse"
+            nextLabel="Runway Stress Tester"
+          />
+        </div>
       )}
 
-      {/* VIEW 3: Dedicated What-If Runway Shock Test */}
-      {activeView === 'runway_stress' && (
-        <RunwayStressTester startup={startup} />
+      {/* =========================================================================
+          STAGE 3: RUNWAY SHOCK SIMULATOR (18-Month What-If Stress)
+          ========================================================================= */}
+      {activeStage === 'runway_stress' && (
+        <div className="space-y-4 animate-fadeIn">
+          <RunwayStressTester startup={startup} />
+
+          <StageFooterNav
+            currentStage={activeStage}
+            onSelectStage={setActiveStage}
+            prevLabel="Claim Check Matrix"
+            nextLabel="Tranche Escrow Governance"
+          />
+        </div>
       )}
 
-      {/* VIEW 4: Tranche Escrow Governance */}
-      {activeView === 'tranche_escrow' && (
-        <TrancheSimulation startup={startup} />
+      {/* =========================================================================
+          STAGE 4: TRANCHE ESCROW (Milestone Capital Governance)
+          ========================================================================= */}
+      {activeStage === 'tranche_escrow' && (
+        <div className="space-y-4 animate-fadeIn">
+          <TrancheSimulation startup={startup} />
+
+          <StageFooterNav
+            currentStage={activeStage}
+            onSelectStage={setActiveStage}
+            prevLabel="Runway Stress Tester"
+            nextLabel="Advisory & IC Decision"
+          />
+        </div>
       )}
 
-      {/* VIEW 5: Advisory Syndicate & Pre-Revenue Diagnostic */}
-      {activeView === 'advisory_syndicate' && (
-        <PreRevenueAdvisoryHub startup={startup} />
+      {/* =========================================================================
+          STAGE 5: ADVISORY SYNDICATE & INVESTMENT COMMITTEE ACTION
+          ========================================================================= */}
+      {activeStage === 'advisory_action' && (
+        <div className="space-y-6 animate-fadeIn">
+          {/* Investment Memo Decision Simulator */}
+          <div className="p-6 rounded-2xl bg-gradient-to-r from-[#0c1424] via-[#111d36] to-[#0a1222] border border-indigo-500/40 shadow-xl">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h3 className="text-base font-bold text-white flex items-center gap-2">
+                  <Award className="w-5 h-5 text-indigo-400" />
+                  <span>Investment Committee Decision Simulator</span>
+                </h3>
+                <p className="text-xs text-slate-400 mt-0.5">
+                  Simulate your partner meeting vote based on meritocracy score, claim discrepancies, and runway cushion
+                </p>
+              </div>
+              <span className="text-xs font-mono text-indigo-300 font-semibold bg-indigo-500/10 px-3 py-1 rounded-full border border-indigo-500/25">
+                Round Size: {startup.askingRound}
+              </span>
+            </div>
+
+            <div className="flex items-center gap-3 flex-wrap pt-2">
+              <button
+                onClick={() => setDecisionState('approved')}
+                className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all ${
+                  decisionState === 'approved'
+                    ? 'bg-emerald-600 text-white ring-2 ring-emerald-400 shadow-lg shadow-emerald-600/30'
+                    : 'bg-emerald-600/20 text-emerald-300 hover:bg-emerald-600/30 border border-emerald-500/40'
+                }`}
+              >
+                Issue Milestone Term Sheet ({startup.askingRound})
+              </button>
+              <button
+                onClick={() => setDecisionState('audit_requested')}
+                className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all ${
+                  decisionState === 'audit_requested'
+                    ? 'bg-amber-600 text-white ring-2 ring-amber-400 shadow-lg shadow-amber-600/30'
+                    : 'bg-amber-600/20 text-amber-300 hover:bg-amber-600/30 border border-amber-500/40'
+                }`}
+              >
+                Request Claim Check Audit Clarification
+              </button>
+              <button
+                onClick={() => setDecisionState('passed')}
+                className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all ${
+                  decisionState === 'passed'
+                    ? 'bg-rose-600 text-white ring-2 ring-rose-400 shadow-lg shadow-rose-600/30'
+                    : 'bg-rose-600/20 text-rose-300 hover:bg-rose-600/30 border border-rose-500/40'
+                }`}
+              >
+                Pass on Round
+              </button>
+            </div>
+
+            {decisionState && (
+              <div className="mt-4 p-4 rounded-xl bg-[#090f1e] border border-slate-700 text-xs font-mono text-slate-200 animate-fadeIn flex items-center gap-2.5">
+                <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+                <span>
+                  {decisionState === 'approved' && `✅ Term Sheet Draft Generated: ₹1.00 Cr commitment with 3-Step Milestone Escrow Conditions attached.`}
+                  {decisionState === 'audit_requested' && `⚠️ Diligence RFIs dispatched to ${isBlindMode ? startup.codeName : startup.realName} for amber/red ledger variances.`}
+                  {decisionState === 'passed' && `❌ Opportunity archived in Deal Flow CRM with automated meritocracy score memo.`}
+                </span>
+              </div>
+            )}
+          </div>
+
+          {/* Advisory Syndicate Network Directory */}
+          <PreRevenueAdvisoryHub startup={startup} />
+
+          <StageFooterNav
+            currentStage={activeStage}
+            onSelectStage={setActiveStage}
+            prevLabel="Tranche Escrow Governance"
+          />
+        </div>
       )}
     </div>
   );

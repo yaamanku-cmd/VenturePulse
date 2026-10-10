@@ -4,10 +4,10 @@
 
 @layer base {
   * {
-    border-color: #1f2e4a;
+    border-color: #1a2742;
   }
   body {
-    background-color: #090d16;
+    background-color: #060911;
     color: #f1f5f9;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
     overflow-x: hidden;
@@ -23,36 +23,103 @@
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #090d16;
+  background: #060911;
 }
 ::-webkit-scrollbar-thumb {
-  background: #1e293b;
+  background: #1a2742;
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #334155;
+  background: #2b3e66;
 }
 
 /* Radial background glow effects */
 .bg-radial-grid {
-  background-image: radial-gradient(rgba(99, 102, 241, 0.08) 1px, transparent 1px);
-  background-size: 24px 24px;
+  background-image: 
+    radial-gradient(circle at 50% 0%, rgba(99, 102, 241, 0.12) 0%, transparent 60%),
+    radial-gradient(rgba(99, 102, 241, 0.07) 1px, transparent 1px);
+  background-size: 100% 100%, 28px 28px;
 }
 
-/* Glassmorphism utility */
+/* Glassmorphism & Cyber Card Utilities */
 .glass-panel {
-  background: rgba(14, 21, 36, 0.75);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  background: rgba(13, 20, 36, 0.78);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
   border: 1px solid rgba(31, 46, 74, 0.85);
 }
 
 .glass-panel-elevated {
-  background: rgba(19, 29, 49, 0.85);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(99, 102, 241, 0.25);
-  box-shadow: 0 12px 36px -10px rgba(0, 0, 0, 0.5);
+  background: rgba(16, 26, 46, 0.88);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(99, 102, 241, 0.28);
+  box-shadow: 0 16px 40px -12px rgba(0, 0, 0, 0.65), 0 0 20px -8px rgba(99, 102, 241, 0.2);
+}
+
+/* Cyber-Fintech Neon Glows */
+.glow-emerald {
+  box-shadow: 0 0 25px -4px rgba(16, 185, 129, 0.35);
+}
+.glow-indigo {
+  box-shadow: 0 0 25px -4px rgba(99, 102, 241, 0.35);
+}
+.glow-amber {
+  box-shadow: 0 0 25px -4px rgba(245, 158, 11, 0.35);
+}
+.glow-rose {
+  box-shadow: 0 0 25px -4px rgba(244, 63, 94, 0.35);
+}
+.glow-cyan {
+  box-shadow: 0 0 25px -4px rgba(6, 182, 212, 0.35);
+}
+
+/* Interactive Card Transitions */
+.cyber-card {
+  background: linear-gradient(145deg, rgba(14, 21, 38, 0.95) 0%, rgba(10, 16, 30, 0.98) 100%);
+  border: 1px solid rgba(27, 41, 68, 0.85);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.cyber-card:hover {
+  border-color: rgba(99, 102, 241, 0.45);
+  box-shadow: 0 12px 30px -8px rgba(0, 0, 0, 0.5), 0 0 15px -3px rgba(99, 102, 241, 0.15);
+  transform: translateY(-2px);
+}
+
+.cyber-card-active {
+  background: linear-gradient(145deg, rgba(20, 31, 56, 0.95) 0%, rgba(12, 20, 38, 0.98) 100%);
+  border-color: rgba(99, 102, 241, 0.6);
+  box-shadow: 0 14px 34px -8px rgba(0, 0, 0, 0.6), 0 0 24px -4px rgba(99, 102, 241, 0.3);
+}
+
+/* Shimmer Animation */
+@keyframes cyber-shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(200%); }
+}
+
+.animate-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.animate-shimmer::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  transform: translateX(-100%);
+  background-image: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0,
+    rgba(255, 255, 255, 0.06) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  animation: cyber-shimmer 2.5s infinite;
+  pointer-events: none;
 }
 
 /* Sample data watermark container */
@@ -60,19 +127,20 @@
   position: relative;
 }
 .has-sample-watermark::after {
-  content: "SAMPLE DATA MOCK";
+  content: "LIVE DEMO MOCK";
   position: absolute;
   top: 8px;
-  right: 12px;
+  right: 14px;
   font-family: 'JetBrains Mono', monospace;
   font-size: 0.6rem;
-  letter-spacing: 0.12em;
-  font-weight: 700;
-  padding: 2px 7px;
-  border-radius: 4px;
-  background: rgba(245, 158, 11, 0.12);
+  letter-spacing: 0.14em;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: rgba(245, 158, 11, 0.15);
   color: #fbbf24;
-  border: 1px dashed rgba(245, 158, 11, 0.4);
+  border: 1px dashed rgba(245, 158, 11, 0.5);
+  box-shadow: 0 0 12px -2px rgba(245, 158, 11, 0.25);
   pointer-events: none;
   z-index: 20;
 }

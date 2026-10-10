@@ -32,6 +32,7 @@ export const AuthModal = ({
 
   // Role tab: 'founder' | 'investor'
   const [roleTab, setRoleTab] = useState(currentUser?.role || 'founder');
+  const [formError, setFormError] = useState(null);
 
   // Founder Personal Details Form State
   const [founderForm, setFounderForm] = useState({
@@ -77,9 +78,10 @@ export const AuthModal = ({
   const handleFounderSubmit = (e) => {
     e.preventDefault();
     if (!founderForm.name || !founderForm.email) {
-      alert("Please provide at least your Full Name and Work/Personal Email.");
+      setFormError("Please provide at least your Full Name and Work/Personal Email.");
       return;
     }
+    setFormError(null);
 
     // Generate custom startup profile
     const customStartup = createCustomStartup({
@@ -122,9 +124,10 @@ export const AuthModal = ({
   const handleInvestorSubmit = (e) => {
     e.preventDefault();
     if (!investorForm.name || !investorForm.email) {
-      alert("Please provide at least your Full Name and Work Email.");
+      setFormError("Please provide at least your Full Name and Work Email.");
       return;
     }
+    setFormError(null);
 
     const newUser = {
       id: `user-inv-${Date.now()}`,
@@ -232,6 +235,18 @@ export const AuthModal = ({
 
         {/* Content Area */}
         <div className="overflow-y-auto space-y-4 flex-1 pr-1.5 pt-2">
+          {formError && (
+            <div className="p-3 rounded-xl bg-rose-500/15 border border-rose-500/40 text-rose-300 text-xs font-mono flex items-center justify-between animate-fadeIn">
+              <span>⚠️ {formError}</span>
+              <button 
+                type="button" 
+                onClick={() => setFormError(null)} 
+                className="text-slate-400 hover:text-white font-bold ml-2"
+              >
+                ✕
+              </button>
+            </div>
+          )}
           
           {/* MODE 1: Detailed Personal Details Form */}
           {activeMode === 'form' && (

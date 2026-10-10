@@ -1,81 +1,109 @@
 import React, { useState } from 'react';
-import { Award, AlertTriangle, ArrowUpRight } from 'lucide-react';
+import { Award, AlertTriangle, ArrowUpRight, TrendingUp, ShieldCheck, Flame, Scale, CheckCircle2 } from 'lucide-react';
 import { ScoreBreakdownModal } from './ScoreBreakdownModal';
 
 /**
  * MeritocracyGauge Component
  * Circular gauge (0-100) with dynamic gradient arc, needle indicator,
- * breakdown modal trigger, and mandatory legal disclaimer.
+ * 5-pillar mini visual breakdown, modal trigger, and mandatory legal disclaimer.
  */
 export const MeritocracyGauge = ({ startup }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const score = startup?.meritocracyScore || 0;
 
-  // Gauge calculation: 240 degree arc (from 150 deg to 390 deg / -30 deg)
+  // Gauge calculation: 270 degree arc
   const radius = 68;
   const circumference = 2 * Math.PI * radius;
-  const arcLength = circumference * 0.75; // 270 degrees
+  const arcLength = circumference * 0.75;
   const strokeDashoffset = arcLength - (arcLength * score) / 100;
 
-  // Color determination based on score
+  // Color theme determination based on score
   const getScoreTheme = (val) => {
     if (val >= 80) {
       return {
         stroke: '#10b981', // emerald
-        glow: 'rgba(16, 185, 129, 0.4)',
+        glow: 'rgba(16, 185, 129, 0.45)',
         textColor: 'text-emerald-400',
         badge: 'Top Decile Fundamentals',
-        bgBadge: 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
+        bgBadge: 'bg-emerald-500/15 border-emerald-500/40 text-emerald-300 shadow-sm shadow-emerald-500/20'
       };
     } else if (val >= 65) {
       return {
         stroke: '#6366f1', // indigo
-        glow: 'rgba(99, 102, 241, 0.4)',
+        glow: 'rgba(99, 102, 241, 0.45)',
         textColor: 'text-indigo-400',
-        badge: 'Moderate Health',
-        bgBadge: 'bg-indigo-500/10 border-indigo-500/30 text-indigo-400'
+        badge: 'Moderate Health Tier',
+        bgBadge: 'bg-indigo-500/15 border-indigo-500/40 text-indigo-300 shadow-sm shadow-indigo-500/20'
       };
     } else {
       return {
-        stroke: '#f43f5e', // red
-        glow: 'rgba(244, 63, 94, 0.4)',
+        stroke: '#f43f5e', // rose red
+        glow: 'rgba(244, 63, 94, 0.45)',
         textColor: 'text-rose-400',
-        badge: 'High Diligence Flag',
-        bgBadge: 'bg-rose-500/10 border-rose-500/30 text-rose-400'
+        badge: 'High Diligence Variance',
+        bgBadge: 'bg-rose-500/15 border-rose-500/40 text-rose-300 shadow-sm shadow-rose-500/20'
       };
     }
   };
 
   const theme = getScoreTheme(score);
+  const breakdown = startup?.scoreBreakdown || {
+    growth: { score: 75 },
+    efficiency: { score: 80 },
+    runway: { score: 70 },
+    discipline: { score: 85 },
+    claimConsistency: { score: 65 }
+  };
+
+  const pillars = [
+    { label: 'Growth Velocity', val: breakdown.growth?.score || 75, weight: '25%' },
+    { label: 'Capital Efficiency', val: breakdown.efficiency?.score || 80, weight: '25%' },
+    { label: 'Runway Buffer', val: breakdown.runway?.score || 70, weight: '20%' },
+    { label: 'Expense Discipline', val: breakdown.discipline?.score || 85, weight: '15%' },
+    { label: 'Claim Consistency', val: breakdown.claimConsistency?.score || 65, weight: '15%' },
+  ];
 
   return (
     <>
-      <div className="relative flex flex-col items-center justify-between p-5 rounded-2xl bg-[#0e1524] border border-[#1f2e4a] shadow-lg">
+      <div className="relative flex flex-col justify-between p-5 md:p-6 rounded-2xl bg-gradient-to-b from-[#0f172a] to-[#0a1120] border border-[#1e2f4e] shadow-xl hover:border-indigo-500/40 transition-all duration-300 group">
+        {/* Glow ambient background */}
+        <div 
+          className="absolute -top-10 -right-10 w-44 h-44 rounded-full blur-3xl pointer-events-none opacity-30"
+          style={{ backgroundColor: theme.stroke }}
+        />
+
         {/* Top Header */}
         <div className="w-full flex items-center justify-between mb-2">
           <div className="flex items-center gap-2">
-            <Award className="w-4 h-4 text-indigo-400" />
-            <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-300">
-              Meritocracy Score
-            </h4>
+            <div className="p-1.5 rounded-lg bg-indigo-500/15 border border-indigo-500/30 text-indigo-400">
+              <Award className="w-4 h-4" />
+            </div>
+            <div>
+              <h4 className="text-xs font-bold uppercase tracking-wider text-white">
+                Meritocracy Score
+              </h4>
+              <span className="text-[10px] font-mono text-slate-400 block -mt-0.5">
+                Objective Ledger Benchmark
+              </span>
+            </div>
           </div>
           <button
             onClick={() => setIsModalOpen(true)}
-            className="flex items-center gap-1 text-[11px] text-slate-400 hover:text-indigo-400 transition-colors font-medium"
-            title="Inspect 5-pillar breakdown"
+            className="flex items-center gap-1 text-[11px] font-semibold text-indigo-400 hover:text-indigo-300 transition-colors px-2 py-1 rounded-lg bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/30"
+            title="Inspect 5-pillar mathematical breakdown"
           >
-            <span>Breakdown</span>
+            <span>Diagnostics</span>
             <ArrowUpRight className="w-3.5 h-3.5" />
           </button>
         </div>
 
         {/* Circular Gauge Visualization */}
         <div 
-          className="relative flex items-center justify-center my-2 cursor-pointer group"
+          className="relative flex items-center justify-center my-3 cursor-pointer group"
           onClick={() => setIsModalOpen(true)}
         >
           <svg
-            className="w-44 h-44 transform -rotate-135 drop-shadow-md"
+            className="w-44 h-44 transform -rotate-135 drop-shadow-lg"
             viewBox="0 0 160 160"
           >
             {/* Background Arc Track */}
@@ -84,70 +112,80 @@ export const MeritocracyGauge = ({ startup }) => {
               cy="80"
               r={radius}
               fill="none"
-              stroke="#1e293b"
-              strokeWidth="10"
+              stroke="#131e33"
+              strokeWidth="11"
               strokeDasharray={arcLength}
               strokeDashoffset={0}
               strokeLinecap="round"
             />
-            {/* Active Colored Arc */}
+            {/* Active Colored Arc with Cyber Glow */}
             <circle
               cx="80"
               cy="80"
               r={radius}
               fill="none"
               stroke={theme.stroke}
-              strokeWidth="10"
+              strokeWidth="11"
               strokeDasharray={arcLength}
               strokeDashoffset={strokeDashoffset}
               strokeLinecap="round"
               className="transition-all duration-1000 ease-out"
               style={{
-                filter: `drop-shadow(0 0 8px ${theme.glow})`
+                filter: `drop-shadow(0 0 10px ${theme.glow})`
               }}
             />
           </svg>
 
           {/* Centered Score Readout */}
           <div className="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none">
-            <span className="text-4xl font-extrabold font-mono text-white tracking-tighter">
+            <span className="text-4xl font-extrabold font-mono text-white tracking-tight drop-shadow-sm">
               {score}
             </span>
-            <span className="text-[11px] font-mono text-slate-400 uppercase tracking-widest mt-0.5">
+            <span className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-widest mt-0.5">
               Score / 100
             </span>
-            <div className={`mt-1.5 px-2 py-0.5 rounded-full text-[10px] font-semibold border ${theme.bgBadge}`}>
+            <div className={`mt-2 px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${theme.bgBadge}`}>
               {theme.badge}
             </div>
           </div>
         </div>
 
-        {/* Quick Micro-stats */}
-        <div className="w-full grid grid-cols-2 gap-2 mt-3 pt-3 border-t border-[#1f2e4a] text-center">
-          <div className="bg-[#131d31] p-2 rounded-lg">
-            <span className="text-[10px] text-slate-400 uppercase tracking-wider block">Efficiency</span>
-            <span className="text-xs font-mono font-bold text-slate-200">
-              {startup?.scoreBreakdown?.efficiency?.score || 0}/100
-            </span>
+        {/* 5-Pillar Mini Visual Progression Bars */}
+        <div className="w-full space-y-2 pt-3 border-t border-[#1a2844] mt-2">
+          <div className="flex items-center justify-between text-[10px] uppercase font-bold text-slate-400 tracking-wider">
+            <span>5-Pillar Scorecard</span>
+            <span className="font-mono text-indigo-400">Ledger Weighted</span>
           </div>
-          <div className="bg-[#131d31] p-2 rounded-lg">
-            <span className="text-[10px] text-slate-400 uppercase tracking-wider block">Consistency</span>
-            <span className="text-xs font-mono font-bold text-slate-200">
-              {startup?.scoreBreakdown?.claimConsistency?.score || 0}/100
-            </span>
+
+          <div className="space-y-1.5">
+            {pillars.map((pillar, idx) => (
+              <div key={idx} className="flex items-center justify-between gap-2 text-[11px] font-mono">
+                <span className="text-slate-300 truncate w-32">{pillar.label}</span>
+                <div className="flex-1 h-1.5 rounded-full bg-[#131f36] overflow-hidden">
+                  <div 
+                    className="h-full rounded-full transition-all duration-700"
+                    style={{ 
+                      width: `${pillar.val}%`,
+                      backgroundColor: pillar.val >= 75 ? '#10b981' : pillar.val >= 60 ? '#6366f1' : '#f43f5e'
+                    }}
+                  />
+                </div>
+                <span className="text-white font-bold w-10 text-right">{pillar.val}%</span>
+              </div>
+            ))}
           </div>
         </div>
 
         {/* Mandatory Regulatory Disclaimer */}
-        <div className="mt-3 w-full text-center">
-          <p className="text-[10.5px] font-medium text-amber-400/90 tracking-tight flex items-center justify-center gap-1">
-            <AlertTriangle className="w-3 h-3 text-amber-400 flex-shrink-0" />
+        <div className="mt-4 pt-3 border-t border-[#1a2844] w-full text-center">
+          <p className="text-[10.5px] font-medium text-amber-300/90 tracking-tight flex items-center justify-center gap-1.5">
+            <AlertTriangle className="w-3.5 h-3.5 text-amber-400 flex-shrink-0 animate-pulse" />
             <span>Screening aid only. Not investment advice.</span>
           </p>
         </div>
       </div>
 
-      {/* Modal Dialog */}
+      {/* 5-Pillar Detailed Modal Dialog */}
       <ScoreBreakdownModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
